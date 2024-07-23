@@ -45,7 +45,7 @@ function Page() {
     //login and logout
     const handleLogin = () => {
         const clientId = '142aed26bdfe40aaa9e9ab4610dcc4ca'
-        const redirectUri = 'https://beatfinder.app'
+        const redirectUri = 'https://www.beatfinder.app'
         const scopes = ['user-read-private', 'playlist-read-private', 'user-top-read']
         const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20playlist-read-private%20user-top-read&response_type=token`
         window.location = authorizationUrl;
