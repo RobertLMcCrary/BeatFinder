@@ -17,7 +17,7 @@ const clientId = process.env.SPOTIFY_CLIENT_ID
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
 const spotifyUrl = 'https://api.spotify.com';
 
-function page() {
+function Page() {
 
     const [loggedIn, setLoggedIn] = useState(false);
     const [playlists, setPlaylists] = useState([]);
@@ -191,4 +191,4 @@ function page() {
     )
 }
 
-export default page
+export default Page
