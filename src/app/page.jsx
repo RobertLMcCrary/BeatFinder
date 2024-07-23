@@ -138,7 +138,7 @@ function Page() {
 
                         <ul className='flex flex-col gap-[20px]'>
                             {artists.map((artist, index) => (
-                                <li>
+                                <li key={index}>
                                     <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
                                         <h1 className='text-3xl font-bold'>{artist.name}</h1>
                                         <img className='rounded-xl my-[10px]' src={artist.image} alt="album image" />
@@ -155,7 +155,7 @@ function Page() {
 
                         <ul className='flex flex-col gap-[20px]'>
                             {topTracks.map((track, index) => (
-                                <li>
+                                <li key={index}>
                                     <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
                                         <img className='rounded-xl mb-[15px]' src={track.album.image} alt="album image" />
                                         <h1 className='text-3xl font-bold'>{track.name}</h1>
@@ -172,7 +172,7 @@ function Page() {
 
                         <ul className='flex flex-col gap-[20px]'>
                             {recommendedTracks.map((track, index) => (
-                                <li>
+                                <li key={index}>
                                     <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
                                         <img className='rounded-xl mb-[15px]' src={track.album.image} alt="album image" />
                                         <h1 className='text-3xl font-bold'>{track.name}</h1>
