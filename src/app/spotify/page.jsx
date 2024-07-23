@@ -1,23 +1,13 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 
-import {
-    Button,
-    Link,
-    Card,
-    CardHeader,
-    CardBody,
-    CardFooter,
-    Image
-} from '@nextui-org/react'
-
 //spotify API
 import SpotifyWebApi from 'spotify-web-api-js'
 const clientId = process.env.SPOTIFY_CLIENT_ID
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
 const spotifyUrl = 'https://api.spotify.com';
 
-function page() {
+function Spotify() {
 
     const [loggedIn, setLoggedIn] = useState(false);
     const [playlists, setPlaylists] = useState([]);
@@ -36,24 +26,32 @@ function page() {
             spotifyApi.setAccessToken(accessToken);
             console.log('Access token set:', accessToken);
             setLoggedIn(true);
-            fetchArtists()
-            fetchTopTracks()
-            fetchRecommendedTracks()
+
         }
     }, [])
 
     //login and logout
     const handleLogin = () => {
-        const clientId = '142aed26bdfe40aaa9e9ab4610dcc4ca'
-        const redirectUri = 'https://beatfinder.com'
-        const scopes = ['user-read-private', 'playlist-read-private', 'user-top-read']
-        const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20playlist-read-private%20user-top-read&response_type=token`
+        const clientId = '142aed26bdfe40aaa9e9ab4610dcc4ca';
+        const redirectUri = 'http://localhost:3000/spotify';
+        const scopes = ['user-read-private', 'playlist-read-private', 'user-top-read'];
+        const authorizationUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20playlist-read-private%20user-top-read&response_type=token`;
         window.location = authorizationUrl;
     }
 
     const handleLogout = () => {
         setLoggedIn(false);
     }
+
+    //fetching the users playlists
+    const fetchPlaylists = async () => {
+        try {
+            const response = await spotifyApi.getUserPlaylists();
+            setPlaylists(response.items);
+        } catch (error) {
+            console.error('Error fetching playlists:', error);
+        }
+    };
 
     //top artists
     const fetchArtists = async () => {
@@ -62,10 +60,10 @@ function page() {
             const artists = response.items.map(artist => ({
                 id: artist.id,
                 name: artist.name,
-                image: artist.images[0].url,
-                genres: artist.genres
+                images: artist.images,
+                genres: artist.genres // This will give you the genres for each artist
             }));
-            console.log(artists.image)
+            console.log(artists)
             setArtists(artists);
         }
         catch (error) {
@@ -124,71 +122,74 @@ function page() {
 
 
     return (
-        <div className='bg-white flex flex-col items-center py-[30px] gap-[20px]'>
+        <div>
             {!loggedIn ? (
                 <>
                     <div>
-                        <Button onClick={handleLogin} color="success">Login w/ Spotify</Button>
+                        <button onClick={handleLogin}>Login with Spotify</button>
                     </div>
                 </>
             ) : (
                 <>
-                    <div className='flex flex-col items-center gap-[20px]'>
-                        <h1 className='text-black text-5xl font-bold'>Your Top Artists</h1>
-
-                        <ul className='flex flex-col gap-[20px]'>
+                    <div>
+                        <h1>Your Playlists</h1>
+                        <ul>
+                            {playlists.map((playlist) => (
+                                <li key={playlist.id}>
+                                    <button onClick={() => toggleDropdown(playlist.id)}>&darr; {playlist.name}</button>
+                                    {tracks[playlist.id] && (
+                                        <ul>
+                                            {tracks[playlist.id].map(track => (
+                                                <li key={track.id}>{track.name} by {track.artists.map(artist => artist.name).join(', ')}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h1>Your Top Artists:</h1>
+                        <ul>
                             {artists.map((artist, index) => (
-                                <li>
-                                    <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
-                                        <h1 className='text-3xl font-bold'>{artist.name}</h1>
-                                        <img className='rounded-xl my-[10px]' src={artist.image} alt="album image" />
-                                        <h1 className='text-2xl'>{artist.genres.join(", ")}</h1>
-                                    </Card>
-                                </li>
+                                <div key={index}>
+                                    <h2>{artist.name}</h2>
+                                    <p>Genres: {artist.genres.join(', ')}</p>
+                                </div>
                             ))}
                         </ul>
-
                     </div>
-
-                    <div className='flex flex-col items-center gap-[20px] mt-[100px]'>
-                        <h1 className='text-black text-5xl font-bold'>Your Top Tracks</h1>
-
-                        <ul className='flex flex-col gap-[20px]'>
+                    <div>
+                        <h1>Your Top Tracks:</h1>
+                        <ul>
                             {topTracks.map((track, index) => (
-                                <li>
-                                    <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
-                                        <img className='rounded-xl mb-[15px]' src={track.album.image} alt="album image" />
-                                        <h1 className='text-3xl font-bold'>{track.name}</h1>
-                                        <h1 className='text-2xl'>{track.artist}</h1>
-                                    </Card>
-                                </li>
+                                <div key={index}>
+                                    {track.album.image && (
+                                        <img src={track.album.image} alt={track.album.name} />
+                                    )}
+                                    <h2>{track.name}</h2>
+                                    <p>Album: {track.album.name}</p>
+                                    <p>Artist: {track.artist}</p>
+                                </div>
                             ))}
                         </ul>
-
                     </div>
 
-                    <div className='flex flex-col items-center gap-[20px] mt-[100px]'>
-                        <h1 className='text-black text-5xl font-bold'>Recommendations</h1>
-
-                        <ul className='flex flex-col gap-[20px]'>
-                            {recommendedTracks.map((track, index) => (
-                                <li>
-                                    <Card key={index} className='mx-[20px] text-center items-center p-[20px]'>
-                                        <img className='rounded-xl mb-[15px]' src={track.album.image} alt="album image" />
-                                        <h1 className='text-3xl font-bold'>{track.name}</h1>
-                                        <h1 className='text-2xl'>{track.artist}</h1>
-                                    </Card>
-                                </li>
-                            ))}
-                        </ul>
-
+                    <div>
+                        <h1>Your Recommended Songs:</h1>
+                        {recommendedTracks.map((track, index) => (
+                            <div key={index}>
+                                <img src={track.album.image} alt={track.album.name} />
+                                <h2>{track.name}</h2>
+                                <p>By {track.artist}</p>
+                            </div>
+                        ))}
                     </div>
-
-                    <Button color='danger' onClick={handleLogout}>Signout</Button>
+                    <button onClick={handleLogout}>Sign Out</button>
                 </>
             )}
         </div>
     )
 }
 
-export default page
+export default Spotify
